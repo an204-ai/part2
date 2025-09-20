@@ -3,6 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
 
 const authRoutes = require("./routes/auth");
 
@@ -22,11 +24,16 @@ app.use(
   })
 );
 
+// Swagger setup
+const swaggerDocument = JSON.parse(fs.readFileSync("./swagger.json", "utf-8"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Routes
 app.use("/auth", authRoutes);
 app.get("/", (req, res) => {
   res.send("API is running. Try /auth/register, /auth/login, /auth/logout, /auth/profile");
 });
+
 // DB + Server
 mongoose
   .connect(process.env.MONGO_URI)
